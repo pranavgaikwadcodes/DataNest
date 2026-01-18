@@ -1,26 +1,26 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { RootStackParamList } from './src/navigation/types';
+import HomeScreen from './src/screens/HomeScreen';
+import CreateListScreen from './src/screens/CreateListScreen';
+
+const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Dynamic Lists App</Text>
-      <Text>Setup complete! 🎉</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen
+          name="Home"
+          component={HomeScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="CreateList"
+          component={CreateListScreen}
+          options={{ title: 'Create New List' }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  text: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginBottom: 10,
-  },
-});
