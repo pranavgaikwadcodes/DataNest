@@ -5,8 +5,10 @@ import { ActivityIndicator, View } from 'react-native';
 import { RootStackParamList } from './src/navigation/types';
 import HomeScreen from './src/screens/HomeScreen';
 import CreateListScreen from './src/screens/CreateListScreen';
+import EditListScreen from './src/screens/EditListScreen';
 import ListDetailScreen from './src/screens/ListDetailScreen';
 import AddItemScreen from './src/screens/AddItemScreen';
+import EditItemScreen from './src/screens/EditItemScreen';
 import AuthScreen from './src/screens/AuthScreen';
 import { useAuthStore } from './src/stores/authStore';
 
@@ -45,6 +47,11 @@ export default function App() {
           options={{ title: 'Create Collection' }}
         />
         <Stack.Screen
+          name="EditList"
+          component={EditListScreen}
+          options={{ title: 'Edit Collection' }}
+        />
+        <Stack.Screen
           name="ListDetail"
           component={ListDetailScreen}
           options={{ title: 'Collection Details' }}
@@ -53,6 +60,11 @@ export default function App() {
           name="AddItem"
           component={AddItemScreen}
           options={{ title: 'Add Item' }}
+        />
+        <Stack.Screen
+          name="EditItem"
+          component={EditItemScreen}
+          options={{ title: 'Edit Item' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

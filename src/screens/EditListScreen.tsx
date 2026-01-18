@@ -15,16 +15,18 @@ import { Field, FieldType } from '../types';
 import IconPicker from '../components/IconPicker';
 import ColorPicker from '../components/ColorPicker';
 
-type Props = NativeStackScreenProps<RootStackParamList, 'CreateList'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'EditList'>;
 
-export default function CreateListScreen({ navigation }: Props) {
-    const { createList } = useListStore();
-    const [listName, setListName] = useState('');
-    const [selectedIcon, setSelectedIcon] = useState('📦');
-    const [selectedColor, setSelectedColor] = useState('#3b82f6');
+export default function EditListScreen({ route, navigation }: Props) {
+    const { list } = route.params;
+    const { updateList } = useListStore();
+
+    const [listName, setListName] = useState(list.name);
+    const [selectedIcon, setSelectedIcon] = useState(list.icon);
+    const [selectedColor, setSelectedColor] = useState(list.color);
     const [showIconPicker, setShowIconPicker] = useState(false);
     const [showColorPicker, setShowColorPicker] = useState(false);
-    const [fields, setFields] = useState<Field[]>([]);
+    const [fields, setFields] = useState<Field[]>(list.schema.fields);
     const [currentField, setCurrentField] = useState({
         name: '',
         type: 'text' as FieldType,
@@ -42,21 +44,37 @@ export default function CreateListScreen({ navigation }: Props) {
     };
 
     const removeField = (index: number) => {
-        setFields(fields.filter((_, i) => i !== index));
+        Alert.alert(
+            'Remove Field',
+            'Removing this field will delete its data from all items. Continue?',
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Remove',
+                    style: 'destructive',
+                    onPress: () => setFields(fields.filter((_, i) => i !== index)),
+                },
+            ]
+        );
     };
 
-    const handleCreateList = async () => {
+    const handleSave = async () => {
         if (!listName.trim()) {
             Alert.alert('Error', 'Collection name is required');
             return;
         }
 
         if (fields.length === 0) {
-            Alert.alert('Error', 'Add at least one field');
+            Alert.alert('Error', 'Collection must have at least one field');
             return;
         }
 
-        await createList(listName, { fields }, selectedColor, selectedIcon);
+        await updateList(list.id, {
+            name: listName,
+            schema: { fields },
+            color: selectedColor,
+            icon: selectedIcon,
+        });
         navigation.goBack();
     };
 
@@ -95,14 +113,29 @@ export default function CreateListScreen({ navigation }: Props) {
             </View>
 
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Define Fields</Text>
+                <Text style={styles.sectionTitle}>Fields</Text>
 
+                {fields.map((field, index) => (
+                    <View key={index} style={styles.fieldCard}>
+                        <View style={{ flex: 1 }}>
+                            <Text style={styles.fieldName}>{field.name}</Text>
+                            <Text style={styles.fieldMeta}>
+                                {field.type} • {field.required ? 'Required' : 'Optional'}
+                            </Text>
+                        </View>
+                        <TouchableOpacity onPress={() => removeField(index)}>
+                            <Text style={styles.removeButton}>Remove</Text>
+                        </TouchableOpacity>
+                    </View>
+                ))}
+
+                <Text style={styles.addNewLabel}>Add New Field</Text>
                 <View style={styles.fieldInputContainer}>
                     <TextInput
                         style={[styles.input, { flex: 1 }]}
                         value={currentField.name}
                         onChangeText={(text) => setCurrentField({ ...currentField, name: text })}
-                        placeholder="Field name (e.g., NAME, DATE)"
+                        placeholder="Field name (e.g., EMAIL, PHONE)"
                         placeholderTextColor="#9ca3af"
                     />
 
@@ -145,27 +178,8 @@ export default function CreateListScreen({ navigation }: Props) {
                 </View>
             </View>
 
-            {fields.length > 0 && (
-                <View style={styles.section}>
-                    <Text style={styles.sectionTitle}>Fields ({fields.length})</Text>
-                    {fields.map((field, index) => (
-                        <View key={index} style={styles.fieldCard}>
-                            <View style={{ flex: 1 }}>
-                                <Text style={styles.fieldName}>{field.name}</Text>
-                                <Text style={styles.fieldMeta}>
-                                    {field.type} • {field.required ? 'Required' : 'Optional'}
-                                </Text>
-                            </View>
-                            <TouchableOpacity onPress={() => removeField(index)}>
-                                <Text style={styles.removeButton}>Remove</Text>
-                            </TouchableOpacity>
-                        </View>
-                    ))}
-                </View>
-            )}
-
-            <TouchableOpacity style={styles.createButton} onPress={handleCreateList}>
-                <Text style={styles.createButtonText}>Create Collection</Text>
+            <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+                <Text style={styles.saveButtonText}>Save Changes</Text>
             </TouchableOpacity>
 
             <IconPicker
@@ -205,6 +219,13 @@ const styles = StyleSheet.create({
         color: '#111827',
         marginBottom: 16,
     },
+    addNewLabel: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#6b7280',
+        marginTop: 16,
+        marginBottom: 12,
+    },
     input: {
         backgroundColor: '#fff',
         borderWidth: 1,
@@ -239,6 +260,32 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         borderRadius: 20,
+    },
+    fieldCard: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        padding: 12,
+        borderRadius: 8,
+        marginBottom: 8,
+        borderWidth: 1,
+        borderColor: '#e5e7eb',
+    },
+    fieldName: {
+        fontSize: 16,
+        fontWeight: '600',
+        color: '#111827',
+        marginBottom: 4,
+    },
+    fieldMeta: {
+        fontSize: 12,
+        color: '#6b7280',
+        textTransform: 'capitalize',
+    },
+    removeButton: {
+        color: '#ef4444',
+        fontWeight: '600',
+        fontSize: 14,
     },
     fieldInputContainer: {
         gap: 12,
@@ -293,40 +340,14 @@ const styles = StyleSheet.create({
         fontSize: 16,
         fontWeight: '600',
     },
-    fieldCard: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#fff',
-        padding: 12,
-        borderRadius: 8,
-        marginBottom: 8,
-        borderWidth: 1,
-        borderColor: '#e5e7eb',
-    },
-    fieldName: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#111827',
-        marginBottom: 4,
-    },
-    fieldMeta: {
-        fontSize: 12,
-        color: '#6b7280',
-        textTransform: 'capitalize',
-    },
-    removeButton: {
-        color: '#ef4444',
-        fontWeight: '600',
-        fontSize: 14,
-    },
-    createButton: {
+    saveButton: {
         margin: 16,
         padding: 16,
         backgroundColor: '#3b82f6',
         borderRadius: 8,
         alignItems: 'center',
     },
-    createButtonText: {
+    saveButtonText: {
         color: '#fff',
         fontSize: 18,
         fontWeight: '700',

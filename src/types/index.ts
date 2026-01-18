@@ -14,7 +14,10 @@ export interface List {
     id: string;
     name: string;
     schema: ListSchema;
-    user_id: string;  // NEW
+    user_id: string;
+    is_favorite: boolean;
+    color: string;
+    icon: string;
     created_at: string;
 }
 
@@ -28,4 +31,9 @@ export interface Item {
 export interface User {
     id: string;
     email: string;
+}
+
+export interface DeletedItem {
+    item: Item;
+    timestamp: number;
 }

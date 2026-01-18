@@ -16,7 +16,7 @@ import { useAuthStore } from '../stores/authStore';
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 export default function HomeScreen({ navigation }: Props) {
-    const { lists, loading, fetchLists, deleteList } = useListStore();
+    const { lists, loading, fetchLists, deleteList, toggleFavorite } = useListStore();
     const { user, signOut } = useAuthStore();
 
     useEffect(() => {
@@ -94,28 +94,45 @@ export default function HomeScreen({ navigation }: Props) {
                         data={lists}
                         keyExtractor={(item) => item.id}
                         renderItem={({ item }) => (
-                            <View style={styles.listCard}>
+                            <View style={[styles.listCard, { borderLeftColor: item.color, borderLeftWidth: 4 }]}>
                                 <TouchableOpacity
                                     style={styles.listCardContent}
                                     onPress={() => navigation.navigate('ListDetail', { list: item })}
                                 >
-                                    <Text style={styles.listName}>{item.name}</Text>
-                                    <Text style={styles.listFields}>
-                                        {item.schema.fields.length} field{item.schema.fields.length !== 1 ? 's' : ''}
-                                    </Text>
+                                    <View style={styles.listHeader}>
+                                        <Text style={styles.listIcon}>{item.icon}</Text>
+                                        <View style={{ flex: 1 }}>
+                                            <View style={styles.listTitleRow}>
+                                                <Text style={styles.listName}>{item.name}</Text>
+                                                {item.is_favorite && <Text style={styles.favoriteIcon}>⭐</Text>}
+                                            </View>
+                                            <Text style={styles.listFields}>
+                                                {item.schema.fields.length} field{item.schema.fields.length !== 1 ? 's' : ''}
+                                            </Text>
+                                        </View>
+                                    </View>
                                 </TouchableOpacity>
-                                <TouchableOpacity
-                                    style={styles.deleteButton}
-                                    onPress={() => handleDeleteList(item.id, item.name)}
-                                >
-                                    <Text style={styles.deleteButtonText}>Delete</Text>
-                                </TouchableOpacity>
+                                <View style={styles.listActions}>
+                                    <TouchableOpacity
+                                        style={styles.actionButton}
+                                        onPress={() => toggleFavorite(item.id)}
+                                    >
+                                        <Text style={styles.actionButtonText}>
+                                            {item.is_favorite ? '★' : '☆'}
+                                        </Text>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity
+                                        style={styles.actionButton}
+                                        onPress={() => handleDeleteList(item.id, item.name)}
+                                    >
+                                        <Text style={[styles.actionButtonText, { color: '#ef4444' }]}>🗑️</Text>
+                                    </TouchableOpacity>
+                                </View>
                             </View>
                         )}
                         contentContainerStyle={styles.listContent}
                     />
 
-                    {/* Floating Action Button */}
                     <TouchableOpacity
                         style={styles.fab}
                         onPress={() => navigation.navigate('CreateList')}
@@ -225,7 +242,7 @@ const styles = StyleSheet.create({
     },
     listContent: {
         padding: 16,
-        paddingBottom: 100, // Space for FAB
+        paddingBottom: 100,
     },
     listCard: {
         backgroundColor: '#fff',
@@ -241,23 +258,41 @@ const styles = StyleSheet.create({
     listCardContent: {
         flex: 1,
     },
+    listHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 12,
+    },
+    listIcon: {
+        fontSize: 32,
+    },
+    listTitleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 6,
+    },
     listName: {
         fontSize: 18,
         fontWeight: '600',
         color: '#111827',
-        marginBottom: 4,
+    },
+    favoriteIcon: {
+        fontSize: 16,
     },
     listFields: {
         fontSize: 14,
         color: '#6b7280',
+        marginTop: 2,
     },
-    deleteButton: {
+    listActions: {
+        flexDirection: 'row',
+        gap: 8,
+    },
+    actionButton: {
         padding: 8,
     },
-    deleteButtonText: {
-        color: '#ef4444',
-        fontWeight: '600',
-        fontSize: 14,
+    actionButtonText: {
+        fontSize: 20,
     },
     fab: {
         position: 'absolute',
