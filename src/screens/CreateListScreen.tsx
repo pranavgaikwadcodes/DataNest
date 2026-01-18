@@ -14,6 +14,7 @@ import { useListStore } from '../stores/listStore';
 import { Field, FieldType } from '../types';
 import IconPicker from '../components/IconPicker';
 import ColorPicker from '../components/ColorPicker';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'CreateList'>;
 
@@ -61,7 +62,11 @@ export default function CreateListScreen({ navigation }: Props) {
     };
 
     return (
-        <ScrollView style={styles.container}>
+        <KeyboardAwareScrollView
+            style={styles.container}
+            enableOnAndroid={true}
+            extraScrollHeight={20}
+        >
             <View style={styles.section}>
                 <Text style={styles.label}>Collection Name</Text>
                 <TextInput
@@ -181,7 +186,7 @@ export default function CreateListScreen({ navigation }: Props) {
                 onSelect={setSelectedColor}
                 onClose={() => setShowColorPicker(false)}
             />
-        </ScrollView>
+        </KeyboardAwareScrollView>
     );
 }
 

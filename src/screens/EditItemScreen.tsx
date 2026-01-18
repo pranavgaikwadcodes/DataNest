@@ -13,6 +13,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useListStore } from '../stores/listStore';
 import { z } from 'zod';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'EditItem'>;
 
@@ -166,7 +167,11 @@ export default function EditItemScreen({ route, navigation }: Props) {
     };
 
     return (
-        <ScrollView style={styles.container}>
+        <KeyboardAwareScrollView
+            style={styles.container}
+            enableOnAndroid={true}
+            extraScrollHeight={20}
+        >
             <View style={styles.content}>
                 <Text style={styles.title}>Edit Item</Text>
 
@@ -176,7 +181,7 @@ export default function EditItemScreen({ route, navigation }: Props) {
                     <Text style={styles.submitButtonText}>Save Changes</Text>
                 </TouchableOpacity>
             </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
     );
 }
 

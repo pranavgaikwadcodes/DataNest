@@ -13,6 +13,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useListStore } from '../stores/listStore';
 import { z } from 'zod';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'AddItem'>;
 
@@ -174,7 +175,11 @@ export default function AddItemScreen({ route, navigation }: Props) {
     };
 
     return (
-        <ScrollView style={styles.container}>
+        <KeyboardAwareScrollView
+            style={styles.container}
+            enableOnAndroid={true}
+            extraScrollHeight={20}
+        >
             <View style={styles.content}>
                 <Text style={styles.title}>Add Item to {list.name}</Text>
 
@@ -184,7 +189,7 @@ export default function AddItemScreen({ route, navigation }: Props) {
                     <Text style={styles.submitButtonText}>Add Item</Text>
                 </TouchableOpacity>
             </View>
-        </ScrollView>
+        </KeyboardAwareScrollView>
     );
 }
 

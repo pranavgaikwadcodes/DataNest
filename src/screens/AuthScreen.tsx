@@ -8,14 +8,18 @@ import {
     Alert,
     KeyboardAvoidingView,
     Platform,
+    ScrollView,
 } from 'react-native';
 import { useAuthStore } from '../stores/authStore';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 export default function AuthScreen() {
     const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const { signIn, signUp, loading } = useAuthStore();
 
     const handleAuth = async () => {
@@ -53,12 +57,16 @@ export default function AuthScreen() {
         setActiveTab(tab);
         setPassword('');
         setConfirmPassword('');
+        setShowPassword(false);
+        setShowConfirmPassword(false);
     };
 
     return (
-        <KeyboardAvoidingView
-            style={styles.container}
-            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        <KeyboardAwareScrollView
+            contentContainerStyle={styles.scrollContent}
+            enableOnAndroid={true}
+            extraScrollHeight={20}
+            keyboardShouldPersistTaps="handled"
         >
             <View style={styles.content}>
                 {/* Logo/Brand */}
@@ -110,29 +118,45 @@ export default function AuthScreen() {
 
                     <View style={styles.inputContainer}>
                         <Text style={styles.label}>Password</Text>
-                        <TextInput
-                            style={styles.input}
-                            placeholder={activeTab === 'signup' ? 'Min. 6 characters' : '••••••••'}
-                            placeholderTextColor="#9ca3af"
-                            value={password}
-                            onChangeText={setPassword}
-                            secureTextEntry
-                            editable={!loading}
-                        />
+                        <View style={styles.passwordContainer}>
+                            <TextInput
+                                style={styles.passwordInput}
+                                placeholder={activeTab === 'signup' ? 'Min. 6 characters' : '••••••••'}
+                                placeholderTextColor="#9ca3af"
+                                value={password}
+                                onChangeText={setPassword}
+                                secureTextEntry={!showPassword}
+                                editable={!loading}
+                            />
+                            <TouchableOpacity
+                                style={styles.eyeButton}
+                                onPress={() => setShowPassword(!showPassword)}
+                            >
+                                <Text style={styles.eyeIcon}>{showPassword ? '👁️' : '👁️‍🗨️'}</Text>
+                            </TouchableOpacity>
+                        </View>
                     </View>
 
                     {activeTab === 'signup' && (
                         <View style={styles.inputContainer}>
                             <Text style={styles.label}>Confirm Password</Text>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="••••••••"
-                                placeholderTextColor="#9ca3af"
-                                value={confirmPassword}
-                                onChangeText={setConfirmPassword}
-                                secureTextEntry
-                                editable={!loading}
-                            />
+                            <View style={styles.passwordContainer}>
+                                <TextInput
+                                    style={styles.passwordInput}
+                                    placeholder="••••••••"
+                                    placeholderTextColor="#9ca3af"
+                                    value={confirmPassword}
+                                    onChangeText={setConfirmPassword}
+                                    secureTextEntry={!showConfirmPassword}
+                                    editable={!loading}
+                                />
+                                <TouchableOpacity
+                                    style={styles.eyeButton}
+                                    onPress={() => setShowConfirmPassword(!showConfirmPassword)}
+                                >
+                                    <Text style={styles.eyeIcon}>{showConfirmPassword ? '👁️' : '👁️‍🗨️'}</Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
                     )}
 
@@ -158,11 +182,16 @@ export default function AuthScreen() {
                     )}
                 </View>
             </View>
-        </KeyboardAvoidingView>
+        </KeyboardAwareScrollView >
     );
 }
 
 const styles = StyleSheet.create({
+    scrollContent: {
+        flexGrow: 1,
+        justifyContent: 'center',
+        padding: 24,
+    },
     container: {
         flex: 1,
         backgroundColor: '#f9fafb',
@@ -244,6 +273,26 @@ const styles = StyleSheet.create({
         padding: 16,
         fontSize: 16,
         color: '#111827',
+    },
+    passwordContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+        borderWidth: 1,
+        borderColor: '#d1d5db',
+        borderRadius: 12,
+    },
+    passwordInput: {
+        flex: 1,
+        padding: 16,
+        fontSize: 16,
+        color: '#111827',
+    },
+    eyeButton: {
+        padding: 16,
+    },
+    eyeIcon: {
+        fontSize: 20,
     },
     button: {
         backgroundColor: '#3b82f6',
