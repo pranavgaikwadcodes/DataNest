@@ -13,6 +13,7 @@ import {
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useListStore } from '../stores/listStore';
+import { exportToPDF } from '../utils/pdfExport';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ListDetail'>;
 
@@ -109,6 +110,14 @@ export default function ListDetailScreen({ route, navigation }: Props) {
         );
     }
 
+    const handleExport = async () => {
+        try {
+            await exportToPDF(list, sortedItems);
+        } catch (error) {
+            Alert.alert('Error', 'Failed to export PDF');
+        }
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -123,12 +132,20 @@ export default function ListDetailScreen({ route, navigation }: Props) {
                             ` (${items.length} total)`}
                     </Text>
                 </View>
-                <TouchableOpacity
-                    style={styles.headerButton}
-                    onPress={() => navigation.navigate('EditList', { list })}
-                >
-                    <Text style={styles.headerButtonText}>✏️ Edit</Text>
-                </TouchableOpacity>
+                <View style={styles.headerButtons}>
+                    <TouchableOpacity
+                        style={styles.headerButton}
+                        onPress={handleExport}
+                    >
+                        <Text style={styles.headerButtonText}>📄 Export</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                        style={styles.headerButton}
+                        onPress={() => navigation.navigate('EditList', { list })}
+                    >
+                        <Text style={styles.headerButtonText}>✏️ Edit</Text>
+                    </TouchableOpacity>
+                </View>
             </View>
 
             {/* Search and Add Item Bar */}
@@ -316,9 +333,6 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         paddingHorizontal: 12,
         paddingVertical: 8,
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 4,
     },
     headerButtonText: {
         fontSize: 14,
