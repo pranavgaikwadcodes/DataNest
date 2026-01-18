@@ -12,6 +12,8 @@ import {
 } from 'react-native';
 import { useAuthStore } from '../stores/authStore';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { LinearGradient } from 'expo-linear-gradient';
+import MaskedView from '@react-native-masked-view/masked-view';
 
 export default function AuthScreen() {
     const [activeTab, setActiveTab] = useState<'signin' | 'signup'>('signin');
@@ -74,7 +76,21 @@ export default function AuthScreen() {
                     <View style={styles.logoCircle}>
                         <Text style={styles.logoText}>DN</Text>
                     </View>
-                    <Text style={styles.appName}>DataNest</Text>
+                    <MaskedView
+                        maskElement={
+                            <Text style={[styles.appName, { backgroundColor: 'transparent' }]}>
+                                DataNest
+                            </Text>
+                        }
+                    >
+                        <LinearGradient
+                            colors={['#000000', '#3533cd']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 0 }}
+                        >
+                            <Text style={[styles.appName, { opacity: 0 }]}>DataNest</Text>
+                        </LinearGradient>
+                    </MaskedView>
                     <Text style={styles.tagline}>Organize anything, your way</Text>
                 </View>
 
@@ -191,15 +207,10 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         justifyContent: 'center',
         padding: 24,
-    },
-    container: {
-        flex: 1,
-        backgroundColor: '#f9fafb',
+        backgroundColor: '#f9fafb',  // ADD THIS
     },
     content: {
-        flex: 1,
-        justifyContent: 'center',
-        padding: 24,
+        // Remove flex: 1, justifyContent, padding - they're duplicates
     },
     brandContainer: {
         alignItems: 'center',
