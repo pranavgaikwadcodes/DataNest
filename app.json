@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "DataNest",
-    "slug": "DataNest",
+    "slug": "datanest",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -12,19 +12,31 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.pgcodes.datanest"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
+        "backgroundColor": "#3b82f6"
       },
+      "package": "com.pgcodes.datanest",
+      "versionCode": 1,
+      "permissions": [],
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "9453bb5d-105b-43ae-8c62-bf343bd756c7"
+      }
     }
   }
 }
