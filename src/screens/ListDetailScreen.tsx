@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     View,
     Text,
@@ -7,16 +7,19 @@ import {
     StyleSheet,
     ActivityIndicator,
     Alert,
+    TextInput,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useListStore } from '../stores/listStore';
+import { Item } from '../types';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ListDetail'>;
 
 export default function ListDetailScreen({ route, navigation }: Props) {
     const { list } = route.params;
     const { items, loading, fetchItems, deleteItem, setCurrentList } = useListStore();
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         setCurrentList(list);
@@ -33,6 +36,18 @@ export default function ListDetailScreen({ route, navigation }: Props) {
             },
         ]);
     };
+
+    // Filter items based on search query
+    const filteredItems = items.filter((item) => {
+        if (!searchQuery.trim()) return true;
+
+        const query = searchQuery.toLowerCase();
+        return list.schema.fields.some((field) => {
+            const value = item.data[field.name];
+            if (value === null || value === undefined) return false;
+            return String(value).toLowerCase().includes(query);
+        });
+    });
 
     const renderFieldValue = (value: any, type: string) => {
         if (value === null || value === undefined || value === '') {
@@ -60,28 +75,55 @@ export default function ListDetailScreen({ route, navigation }: Props) {
     return (
         <View style={styles.container}>
             <View style={styles.header}>
-                <View>
+                <View style={{ flex: 1 }}>
                     <Text style={styles.listName}>{list.name}</Text>
                     <Text style={styles.itemCount}>
-                        {items.length} item{items.length !== 1 ? 's' : ''}
+                        {filteredItems.length} item{filteredItems.length !== 1 ? 's' : ''}
+                        {searchQuery.trim() && items.length !== filteredItems.length &&
+                            ` (${items.length} total)`}
                     </Text>
                 </View>
                 <TouchableOpacity
                     style={styles.addButton}
                     onPress={() => navigation.navigate('AddItem', { list })}
                 >
-                    <Text style={styles.addButtonText}>+ Add Item</Text>
+                    <Text style={styles.addButtonText}>+ Add</Text>
                 </TouchableOpacity>
             </View>
 
-            {items.length === 0 ? (
+            {/* Search Bar */}
+            <View style={styles.searchContainer}>
+                <TextInput
+                    style={styles.searchInput}
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    placeholder="Search items..."
+                    placeholderTextColor="#9ca3af"
+                />
+                {searchQuery.length > 0 && (
+                    <TouchableOpacity
+                        style={styles.clearButton}
+                        onPress={() => setSearchQuery('')}
+                    >
+                        <Text style={styles.clearButtonText}>✕</Text>
+                    </TouchableOpacity>
+                )}
+            </View>
+
+            {filteredItems.length === 0 ? (
                 <View style={styles.empty}>
-                    <Text style={styles.emptyText}>No items yet</Text>
-                    <Text style={styles.emptySubtext}>Add your first item to get started</Text>
+                    <Text style={styles.emptyText}>
+                        {searchQuery.trim() ? 'No items found' : 'No items yet'}
+                    </Text>
+                    <Text style={styles.emptySubtext}>
+                        {searchQuery.trim()
+                            ? 'Try a different search term'
+                            : 'Add your first item to get started'}
+                    </Text>
                 </View>
             ) : (
                 <FlatList
-                    data={items}
+                    data={filteredItems}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => (
                         <View style={styles.itemCard}>
@@ -145,6 +187,32 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontWeight: '600',
         fontSize: 14,
+    },
+    searchContainer: {
+        backgroundColor: '#fff',
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: '#e5e7eb',
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    searchInput: {
+        flex: 1,
+        backgroundColor: '#f9fafb',
+        borderWidth: 1,
+        borderColor: '#d1d5db',
+        borderRadius: 8,
+        padding: 12,
+        fontSize: 16,
+        color: '#111827',
+    },
+    clearButton: {
+        marginLeft: 8,
+        padding: 8,
+    },
+    clearButtonText: {
+        fontSize: 20,
+        color: '#6b7280',
     },
     empty: {
         flex: 1,
