@@ -11,6 +11,7 @@ interface ListStore {
     // Actions
     fetchLists: () => Promise<void>;
     createList: (name: string, schema: ListSchema) => Promise<void>;
+    deleteList: (listId: string) => Promise<void>;  // NEW
     setCurrentList: (list: List | null) => void;
     fetchItems: (listId: string) => Promise<void>;
     createItem: (listId: string, data: Record<string, any>) => Promise<void>;
@@ -52,6 +53,19 @@ export const useListStore = create<ListStore>((set, get) => ({
             set({ lists: [data, ...get().lists] });
         }
         set({ loading: false });
+    },
+
+    deleteList: async (listId: string) => {
+        const { error } = await supabase
+            .from('lists')
+            .delete()
+            .eq('id', listId);
+
+        if (error) {
+            console.error('Error deleting list:', error);
+        } else {
+            set({ lists: get().lists.filter(list => list.id !== listId) });
+        }
     },
 
     setCurrentList: (list: List | null) => {

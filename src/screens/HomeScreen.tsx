@@ -6,6 +6,7 @@ import {
     TouchableOpacity,
     StyleSheet,
     ActivityIndicator,
+    Alert,
 } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
@@ -14,11 +15,26 @@ import { useListStore } from '../stores/listStore';
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 export default function HomeScreen({ navigation }: Props) {
-    const { lists, loading, fetchLists } = useListStore();
+    const { lists, loading, fetchLists, deleteList } = useListStore();
 
     useEffect(() => {
         fetchLists();
     }, []);
+
+    const handleDeleteList = (listId: string, listName: string) => {
+        Alert.alert(
+            'Delete List',
+            `Are you sure you want to delete "${listName}"? This will also delete all items in this list.`,
+            [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                    text: 'Delete',
+                    style: 'destructive',
+                    onPress: () => deleteList(listId),
+                },
+            ]
+        );
+    };
 
     if (loading && lists.length === 0) {
         return (
@@ -50,15 +66,23 @@ export default function HomeScreen({ navigation }: Props) {
                     data={lists}
                     keyExtractor={(item) => item.id}
                     renderItem={({ item }) => (
-                        <TouchableOpacity
-                            style={styles.listCard}
-                            onPress={() => navigation.navigate('ListDetail', { list: item })}
-                        >
-                            <Text style={styles.listName}>{item.name}</Text>
-                            <Text style={styles.listFields}>
-                                {item.schema.fields.length} field{item.schema.fields.length !== 1 ? 's' : ''}
-                            </Text>
-                        </TouchableOpacity>
+                        <View style={styles.listCard}>
+                            <TouchableOpacity
+                                style={styles.listCardContent}
+                                onPress={() => navigation.navigate('ListDetail', { list: item })}
+                            >
+                                <Text style={styles.listName}>{item.name}</Text>
+                                <Text style={styles.listFields}>
+                                    {item.schema.fields.length} field{item.schema.fields.length !== 1 ? 's' : ''}
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={styles.deleteButton}
+                                onPress={() => handleDeleteList(item.id, item.name)}
+                            >
+                                <Text style={styles.deleteButtonText}>Delete</Text>
+                            </TouchableOpacity>
+                        </View>
                     )}
                     contentContainerStyle={styles.listContent}
                 />
@@ -124,11 +148,17 @@ const styles = StyleSheet.create({
     },
     listCard: {
         backgroundColor: '#fff',
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
         padding: 16,
         borderRadius: 12,
         marginBottom: 12,
         borderWidth: 1,
         borderColor: '#e5e7eb',
+    },
+    listCardContent: {
+        flex: 1,
     },
     listName: {
         fontSize: 18,
@@ -139,5 +169,13 @@ const styles = StyleSheet.create({
     listFields: {
         fontSize: 14,
         color: '#6b7280',
+    },
+    deleteButton: {
+        padding: 8,
+    },
+    deleteButtonText: {
+        color: '#ef4444',
+        fontWeight: '600',
+        fontSize: 14,
     },
 });
