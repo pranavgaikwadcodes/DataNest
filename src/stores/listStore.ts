@@ -11,7 +11,7 @@ interface ListStore {
     // Actions
     fetchLists: () => Promise<void>;
     createList: (name: string, schema: ListSchema) => Promise<void>;
-    deleteList: (listId: string) => Promise<void>;  // NEW
+    deleteList: (listId: string) => Promise<void>;
     setCurrentList: (list: List | null) => void;
     fetchItems: (listId: string) => Promise<void>;
     createItem: (listId: string, data: Record<string, any>) => Promise<void>;
@@ -41,9 +41,19 @@ export const useListStore = create<ListStore>((set, get) => ({
 
     createList: async (name: string, schema: ListSchema) => {
         set({ loading: true });
+
+        // Get current user
+        const { data: { user } } = await supabase.auth.getUser();
+
+        if (!user) {
+            console.error('No user found');
+            set({ loading: false });
+            return;
+        }
+
         const { data, error } = await supabase
             .from('lists')
-            .insert({ name, schema })
+            .insert({ name, schema, user_id: user.id })  // Include user_id
             .select()
             .single();
 

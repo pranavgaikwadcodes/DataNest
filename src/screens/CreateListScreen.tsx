@@ -68,14 +68,14 @@ export default function CreateListScreen({ navigation }: Props) {
             </View>
 
             <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Define Fields</Text>
+                <Text style={styles.sectionTitle}>Collection Name</Text>
 
                 <View style={styles.fieldInputContainer}>
                     <TextInput
                         style={[styles.input, { flex: 1 }]}
                         value={currentField.name}
                         onChangeText={(text) => setCurrentField({ ...currentField, name: text })}
-                        placeholder="Field name (e.g., NAME, DATE)"
+                        placeholder="e.g., Contacts, Books, Movies"
                         placeholderTextColor="#9ca3af"
                     />
 
@@ -138,7 +138,7 @@ export default function CreateListScreen({ navigation }: Props) {
             )}
 
             <TouchableOpacity style={styles.createButton} onPress={handleCreateList}>
-                <Text style={styles.createButtonText}>Create List</Text>
+                <Text style={styles.createButtonText}>Create Collection</Text>
             </TouchableOpacity>
         </ScrollView>
     );

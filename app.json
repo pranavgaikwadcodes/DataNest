@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "datanest-app",
-    "slug": "datanest-app",
+    "name": "DataNest",
+    "slug": "DataNest",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",

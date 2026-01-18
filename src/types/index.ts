@@ -14,6 +14,7 @@ export interface List {
     id: string;
     name: string;
     schema: ListSchema;
+    user_id: string;  // NEW
     created_at: string;
 }
 
@@ -22,4 +23,9 @@ export interface Item {
     list_id: string;
     data: Record<string, any>;
     created_at: string;
+}
+
+export interface User {
+    id: string;
+    email: string;
 }
